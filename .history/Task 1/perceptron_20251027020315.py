@@ -26,6 +26,15 @@ class PerceptronModel:
             return -1
 
     def train(self, X_train, y_train):
+        # Validate input dimensions
+        if len(X_train) != len(y_train):
+            raise ValueError("Number of samples in X_train and y_train must match")
+        if not isinstance(X_train, np.ndarray):
+            X_train = np.array(X_train)
+        if not isinstance(y_train, np.ndarray):
+            y_train = np.array(y_train)
+            
+        # Initialize weights if not already initialized
         if self.weights is None:
             self.initialize_weights()
         

@@ -8,8 +8,7 @@ class PerceptronModel:
         self.weights = None
         self.bias = None
         
-    def initialize_weights(self):
-        n_features = 2
+    def initialize_weights(self, n_features):
         self.weights = np.zeros(n_features) 
         self.bias = 0.0 if self.add_bias else None
         

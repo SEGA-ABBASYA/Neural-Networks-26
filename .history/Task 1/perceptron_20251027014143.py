@@ -1,22 +1,20 @@
 import numpy as np
 
 class PerceptronModel:
-    def __init__(self, learning_rate, n_epochs, add_bias):
+    def __init__(self, learning_rate, n_epochs, add_bias): #Constructor
         self.learning_rate = learning_rate
         self.n_epochs = n_epochs
         self.add_bias = add_bias
         self.weights = None
         self.bias = None
         
-    def initialize_weights(self):
-        n_features = 2
-        self.weights = np.zeros(n_features) 
-        self.bias = 0.0 if self.add_bias else None
+    def initialize_weights (self): # Small random numbers between -0.01 and 0.01
+        self.weights = np.zeros(2) # number of features = 2
+        self.add_bias = 0.0
         
     def signum_input(self, sample):
-        result = np.dot(sample, self.weights)
-        if self.add_bias:
-            result += self.bias
+        # input → W^T . x_i + b
+        result = np.dot(sample, self.weights) + self.bias
         return result
     
     def signum(self, signum_input):
@@ -24,10 +22,11 @@ class PerceptronModel:
             return 1
         else:
             return -1
+        
 
     def train(self, X_train, y_train):
         if self.weights is None:
-            self.initialize_weights()
+            self.initialize_weights
         
         n_samples = len(y_train)
         epochs_counter = 0
@@ -35,22 +34,16 @@ class PerceptronModel:
             for i in range(n_samples):
                 sample = X_train[i]
                 target = y_train[i]
-                
                 predicted_y = self.predict(sample)
                 if predicted_y != target:
                     error = target - predicted_y
-                    update = self.learning_rate * error
-                    self.weights = self.weights + (update * sample)
-                    
+                    update = self.eta * error
+                    self.weights = self.weights + (update * x_i)
                     if self.add_bias:
                         self.bias = self.bias + update
-            epochs_counter += 1
         
-    def test(self, X_test): #returns y_pred
-        predicted_y = []
-        for sample in X_test:
-            predicted_y.append(self.predict(sample))
-        return predicted_y    
+    def test(self, X_test, y_test): #returns y_pred
+        pass
     
     def predict(self, sample): #sample
         signum_input = self.signum_input(sample)

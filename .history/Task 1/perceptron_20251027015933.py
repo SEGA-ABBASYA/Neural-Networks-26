@@ -14,9 +14,7 @@ class PerceptronModel:
         self.bias = 0.0 if self.add_bias else None
         
     def signum_input(self, sample):
-        result = np.dot(sample, self.weights)
-        if self.add_bias:
-            result += self.bias
+        result = np.dot(sample, self.weights) + self.bias # result → W^T . x_i + b
         return result
     
     def signum(self, signum_input):
