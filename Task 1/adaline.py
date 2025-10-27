@@ -1,11 +1,141 @@
-'''Placeholder for Adaline Model'''
+import numpy as np
+
 class AdalineModel:
-    def __init__(self, learning_rate, n_epochs, mse_threshold, add_bias):
-        pass
+    """
+    Adaline (Adaptive Linear Neuron)
+    
+    Parameters:
+        learning_rate (float): Learning rate between 0.0 and 1.0
+        n_epochs (int): Number of training iterations over the dataset
+        mse_threshold (float): MSE threshold for early stopping (default: None)
+        add_bias (bool): Whether to include bias term (default: True)
+    
+    Attributes:
+        weights (ndarray): Feature weights after training
+        bias (float): Bias term after training
+        losses (list): Mean squared error values for each epoch
+    """
+
+    def __init__(self, learning_rate=1e-1, n_epochs=1e2, mse_threshold=None, add_bias=True):
+        if not 0.0 < learning_rate <= 1.0:
+            raise ValueError("Learning rate must be between 0.0 and 1.0")
+        if n_epochs <= 0:
+            raise ValueError("Number of epochs must be a positive integer")
+        
+        self.learning_rate = learning_rate
+        self.n_epochs = n_epochs
+        self.mse_threshold = mse_threshold
+        self.add_bias = add_bias
+        self.weights = None
+        self.bias = np.float_(0)
+        self.losses = []
 
     def train(self, X_train, y_train):
-        pass
-    def test(self, X_test, y_test): #returns y_pred
-        pass
-    def predict(self, X): #sample
-        pass
+        """
+        Fit training data using gradient descent.
+        
+        Args:
+            X_train: Training features (2D array of shape [n_samples, n_features])
+            y_train: Training labels (1D array of shape [n_samples])
+        
+        Returns:
+            self: Returns the trained model object
+        """
+        self.weights = np.zeros(X_train.shape[1])
+        self.bias = np.float_(0)
+        
+        self.losses = []
+        epoch = 0
+        while epoch < self.n_epochs:
+            # calculate errors
+            errors = (y_train-self.linear_activation(self.calculate_weighted_sum(X_train)))
+            
+            # update weights and bias using gradient descent
+            self.bias += self.learning_rate*float((1<<1))*errors.mean()
+            weight_updates = X_train.T.dot(errors)/X_train.shape[0]
+            self.weights += self.learning_rate*float((1<<1))*weight_updates
+            
+            # calculate mean squared error
+            loss = np.mean(errors**(1<<1))
+            self.losses.append(loss)
+            # print(f"Epoch {epoch+1}/{self.n_epochs}, MSE:{loss:.6f}")
+            # early stopping if threshold is met
+            if self.mse_threshold is not None and loss < self.mse_threshold:
+                print(f"Early stopping at epoch {epoch+1}, MSE:{loss:.6f}")
+                break
+
+            epoch += 1
+
+        return self
+
+    def test(self, X_test, y_test):
+        """
+        Test the model and calculate accuracy.
+        
+        Args:
+            X_test: Test features (2D array)
+            y_test: True labels for test data (1D array)
+        
+        Returns:
+            y_pred: Predicted class labels (0 or 1)
+            accuracy: Accuracy score as a float between 0 and 1
+        """
+        y_pred = self.predict(X_test)
+        accuracy = np.sum(y_pred == y_test) / len(y_test)
+        return y_pred, accuracy
+
+    def predict(self, X):
+        """
+        Predict class labels after the unit step.
+        
+        Args:
+            X: Input features (2D array)
+        
+        Returns:
+            Predicted class labels (0 or 1)
+        """
+        net_input = self.linear_activation(self.calculate_weighted_sum(X))
+        prediction = np.array([1 if x >= 0.5 else 0 for x in net_input])
+        return prediction
+
+    def calculate_weighted_sum(self, X):
+        """
+        Calculate the weighted sum of inputs (net input).
+        
+        Args:
+            X: Input features (2D array)
+        
+        Returns:
+            Net input values (weighted sum + bias)
+        """
+        return np.dot(X,self.weights)+self.bias
+        
+
+    def linear_activation(self, input):
+        """
+        Apply linear activation (identity function).
+        
+        Args:
+            X: Net input values
+        
+        Returns:
+            Same as input values cause adaline uses linear activation
+        """
+        return input
+
+    def get_params(self):
+        """
+        Get model parameters.
+        Returns
+        -------
+        params : dict
+            Dictionary containing weights, bias, and losses
+        """
+        if self.weights is not None and self.losses is not None:
+            return {
+                'weights': self.weights,
+                'bias': self.bias,
+                'losses': self.losses
+            }
+        else:
+            raise ValueError("Model is not trained yet.")
