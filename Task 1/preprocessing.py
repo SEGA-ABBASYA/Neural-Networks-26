@@ -46,7 +46,7 @@ def preprocess_data(feature1, feature2, class1, class2):
     st.session_state['scaler'] = scaler
     st.session_state['mean_values'] = X_train.mean(numeric_only=True)
 
-    return X_train, y_train, X_test, y_test
+    return X_train.to_numpy(), y_train, X_test.to_numpy(), y_test
 
 def preprocess_sample(feature1, feature2):
     sample_df = pd.DataFrame([[feature1, feature2]], columns=st.session_state['feature_columns'][:2])   
@@ -59,4 +59,4 @@ def preprocess_sample(feature1, feature2):
     scaler = st.session_state['scaler']
     sample_df = pd.DataFrame(scaler.transform(sample_df), columns=sample_df.columns)
 
-    return sample_df
+    return sample_df.to_numpy()

@@ -134,7 +134,6 @@ def main():
                 model = PerceptronModel(
                     learning_rate=learning_rate,
                     n_epochs=epochs,
-                    mse_threshold=mse_threshold,
                     add_bias=use_bias,
                 )
             else:
@@ -145,7 +144,7 @@ def main():
                     add_bias=use_bias,
                 )
             model.train(X_train, y_train)
-            y_pred = model.test(X_test, y_test)
+            y_pred = model.test(X_test)
             st.session_state['model'] = model
             st.success("✅ Model trained successfully!")
             # Data visualization

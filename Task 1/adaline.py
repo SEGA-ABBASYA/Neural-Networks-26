@@ -68,21 +68,17 @@ class AdalineModel:
 
         return self
 
-    def test(self, X_test, y_test):
+    def test(self, X_test):
         """
-        Test the model and calculate accuracy.
+        Test the model.
         
         Args:
             X_test: Test features (2D array)
-            y_test: True labels for test data (1D array)
-        
         Returns:
             y_pred: Predicted class labels (0 or 1)
-            accuracy: Accuracy score as a float between 0 and 1
         """
         y_pred = self.predict(X_test)
-        accuracy = np.sum(y_pred == y_test) / len(y_test)
-        return y_pred, accuracy
+        return y_pred
 
     def predict(self, X):
         """
