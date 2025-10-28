@@ -9,9 +9,6 @@ import matplotlib.pyplot as plt
 
 df = pd.read_csv("penguins.csv")
 
-def handle_missing_values(df):
-    df = df.fillna(df.mean(numeric_only=True))
-    return df
 
 def label_encode_species(series):
     le = LabelEncoder()
@@ -32,9 +29,9 @@ def preprocess_data(feature1, feature2, class1, class2):
         X, y, test_size=0.4, random_state=42, stratify=y
     )
 
-    X_train = handle_missing_values(X_train)
-    X_test = handle_missing_values(X_test)
-
+    X_train = X_train.fillna(X_train.mean(numeric_only=True))
+    X_test = X_test.fillna(X_train.mean(numeric_only=True))
+    
     y_train = label_encode_species(y_train)
     y_test = label_encode_species(y_test)
     
@@ -47,13 +44,14 @@ def preprocess_data(feature1, feature2, class1, class2):
 
     st.session_state['feature_columns'] = X_train.columns.tolist()
     st.session_state['scaler'] = scaler
+    st.session_state['mean_values'] = X_train.mean(numeric_only=True)
 
     return X_train, y_train, X_test, y_test
 
 def preprocess_sample(feature1, feature2):
     sample_df = pd.DataFrame([[feature1, feature2]], columns=st.session_state['feature_columns'][:2])   
 
-    sample_df = handle_missing_values(sample_df)
+    sample_df =sample_df.fillna(st.session_state['mean_values'])
     sample_df = one_hot_encode_location(sample_df)
 
     sample_df = sample_df.reindex(columns=st.session_state['feature_columns'], fill_value=0)
