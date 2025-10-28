@@ -35,6 +35,10 @@ def preprocess_data(feature1, feature2, class1, class2):
     y_train = label_encode_species(y_train)
     y_test = label_encode_species(y_test)
     
+    # Convert labels from {0, 1} to {-1, 1} for Perceptron and Adaline
+    y_train = np.where(y_train == 0, -1, 1)
+    y_test = np.where(y_test == 0, -1, 1)
+    
     X_train = one_hot_encode_location(X_train)
     X_test = one_hot_encode_location(X_test)
 

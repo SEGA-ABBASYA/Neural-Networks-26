@@ -47,20 +47,23 @@ class AdalineModel:
         self.losses = []
         epoch = 0
         while epoch < self.n_epochs:
-            # calculate errors
-            errors = (y_train-self.linear_activation(self.calculate_weighted_sum(X_train)))
+            net_input = self.calculate_weighted_sum(X_train)
+            output = self.linear_activation(net_input)
             
-            # update weights and bias
+            # Calculate errors
+            errors = y_train - output
+            
+            # Update weights and bias using gradient descent
+            self.weights += self.learning_rate * (float(1<<1) / X_train.shape[0]) * X_train.T.dot(errors)
+            
             if self.add_bias:
-                self.bias += self.learning_rate*float((1<<1))*errors.mean()
-            weight_updates = X_train.T.dot(errors)/X_train.shape[0]
-            self.weights += self.learning_rate*float((1<<1))*weight_updates
+                self.bias += self.learning_rate * (float(1<<1) / X_train.shape[0]) * errors.sum()
             
-            # calculate mean squared error
-            loss = np.mean(errors**(1<<1))
+            # Calculate mean squared error for this epoch
+            loss = np.mean(errors**2)
             self.losses.append(loss)
             # print(f"Epoch {epoch+1}/{self.n_epochs}, MSE:{loss:.6f}")
-            # early stopping if threshold is met
+            # early stopping if the threshold is met
             if self.mse_threshold is not None and loss < self.mse_threshold:
                 print(f"Early stopping at epoch {epoch+1}, MSE:{loss:.6f}")
                 break
@@ -89,10 +92,10 @@ class AdalineModel:
             X: Input features (2D array)
         
         Returns:
-            Predicted class labels (0 or 1)
+            Predicted class labels (-1 or 1)
         """
         net_input = self.linear_activation(self.calculate_weighted_sum(X))
-        prediction = np.array([1 if x >= 0.5 else 0 for x in net_input])
+        prediction = np.array([1 if x >= 0 else -1 for x in net_input])
         return prediction
 
     def calculate_weighted_sum(self, X):
