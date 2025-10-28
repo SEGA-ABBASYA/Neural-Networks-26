@@ -50,8 +50,9 @@ class AdalineModel:
             # calculate errors
             errors = (y_train-self.linear_activation(self.calculate_weighted_sum(X_train)))
             
-            # update weights and bias using gradient descent
-            self.bias += self.learning_rate*float((1<<1))*errors.mean()
+            # update weights and bias
+            if self.add_bias:
+                self.bias += self.learning_rate*float((1<<1))*errors.mean()
             weight_updates = X_train.T.dot(errors)/X_train.shape[0]
             self.weights += self.learning_rate*float((1<<1))*weight_updates
             
@@ -104,7 +105,10 @@ class AdalineModel:
         Returns:
             Net input values (weighted sum + bias)
         """
-        return np.dot(X,self.weights)+self.bias
+        if self.add_bias:
+            return np.dot(X,self.weights)+self.bias
+        else:
+            return np.dot(X,self.weights)
         
 
     def linear_activation(self, input):
@@ -130,7 +134,7 @@ class AdalineModel:
         if self.weights is not None and self.losses is not None:
             return {
                 'weights': self.weights,
-                'bias': self.bias,
+                'bias': self.bias if self.add_bias else None,
                 'losses': self.losses
             }
         else:
