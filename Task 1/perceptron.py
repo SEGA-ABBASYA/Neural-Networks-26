@@ -56,3 +56,6 @@ class PerceptronModel:
         signum_input = self.signum_input(sample)
         label = self.signum(signum_input)
         return label
+    
+    def get_weights(self):
+        return self.weights, self.bias

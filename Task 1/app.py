@@ -53,7 +53,7 @@ def main():
 
     # Feature selection
     st.sidebar.markdown("### 📊 Feature Selection")
-    numeric_features = ['CulmenLength', 'CulmenDepth', 'FlipperLength', 'BodyMass']
+    numeric_features = ['CulmenLength', 'CulmenDepth', 'FlipperLength', 'BodyMass', 'OriginLocation']
 
     feature1 = st.sidebar.selectbox(
         "Select First Feature:",
@@ -144,11 +144,12 @@ def main():
                     add_bias=use_bias,
                 )
             model.train(X_train, y_train)
+            weights, bias = model.get_weights()
             y_pred = model.test(X_test)
             st.session_state['model'] = model
             st.success("✅ Model trained successfully!")
             # Data visualization
-            visualize_data(feature1, feature2, class1, class2, learning_rate, epochs, mse_threshold, use_bias, algorithm, X_train, y_train, X_test, y_test, y_pred)
+            visualize_data(feature1, feature2, class1, class2, learning_rate, epochs, mse_threshold, use_bias, algorithm, X_train, y_train, X_test, y_test, y_pred, weights, bias)
 
     # Classification section
     st.markdown('<h2 class="section-header">🔍 Classification</h2>', unsafe_allow_html=True)

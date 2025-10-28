@@ -139,3 +139,6 @@ class AdalineModel:
             }
         else:
             raise ValueError("Model is not trained yet.")
+        
+    def get_weights(self):
+        return self.weights, self.bias
