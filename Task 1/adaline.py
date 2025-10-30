@@ -41,7 +41,8 @@ class AdalineModel:
         Returns:
             self: Returns the trained model object
         """
-        self.weights = np.zeros(X_train.shape[1])
+        rand = np.random.RandomState(42)
+        self.weights = rand.normal(loc=0.0, scale=0.01, size=X_train.shape[1])
         self.bias = np.float64(0)
         
         self.losses = []
