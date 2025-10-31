@@ -3,7 +3,7 @@ import pandas as pd
 import numpy as np
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder
-from sklearn.preprocessing import StandardScaler
+from sklearn.preprocessing import MinMaxScaler
 import seaborn as sns
 import matplotlib.pyplot as plt
 
@@ -35,18 +35,26 @@ def preprocess_data(feature1, feature2, class1, class2):
     y_train = label_encode_species(y_train)
     y_test = label_encode_species(y_test)
     
+    # Convert labels from {0, 1} to {-1, 1} for Perceptron and Adaline
+    y_train = np.where(y_train == 0, -1, 1)
+    y_test = np.where(y_test == 0, -1, 1)
+    
     X_train = one_hot_encode_location(X_train)
     X_test = one_hot_encode_location(X_test)
 
-    scaler = StandardScaler()
+    scaler = MinMaxScaler()
     X_train = pd.DataFrame(scaler.fit_transform(X_train), columns=X_train.columns)
     X_test = pd.DataFrame(scaler.transform(X_test), columns=X_test.columns)
+    min_value = scaler.data_min_
+    max_value = scaler.data_max_
 
     st.session_state['feature_columns'] = X_train.columns.tolist()
     st.session_state['scaler'] = scaler
     st.session_state['mean_values'] = X_train.mean(numeric_only=True)
+    st.session_state['min_values'] = min_value
+    st.session_state['max_values'] = max_value
 
-    return X_train.to_numpy(), y_train, X_test.to_numpy(), y_test
+    return X_train.to_numpy(), y_train, X_test.to_numpy(), y_test, min_value, max_value
 
 def preprocess_sample(feature1, feature2):
     sample_df = pd.DataFrame([[feature1, feature2]], columns=st.session_state['feature_columns'][:2])   

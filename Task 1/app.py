@@ -54,7 +54,7 @@ def main():
 
     # Features
     st.sidebar.markdown("### ⛄ Features")
-    features = ['CulmenLength', 'CulmenDepth', 'FlipperLength', 'BodyMass']
+    features = ['CulmenLength', 'CulmenDepth', 'FlipperLength', 'BodyMass', 'OriginLocation']
 
     feature1 = st.sidebar.selectbox(
         "Select First Feature:",
@@ -121,7 +121,7 @@ def main():
     )
 
     # Preprocessing
-    X_train, y_train, X_test, y_test = preprocess_data(feature1, feature2, class1, class2)
+    X_train, y_train, X_test, y_test, min_val, max_val = preprocess_data(feature1, feature2, class1, class2)
 
     st.markdown('<h2 class="section-header">🌨️ Model Training</h2>', unsafe_allow_html=True)
     # Model Training Section
@@ -133,6 +133,8 @@ def main():
                     learning_rate=learning_rate,
                     n_epochs=epochs,
                     add_bias=use_bias,
+                    min=min_val,
+                    max=max_val
                 )
             else:
                 model = AdalineModel(
@@ -142,11 +144,12 @@ def main():
                     add_bias=use_bias,
                 )
             model.train(X_train, y_train)
+            weights, bias = model.get_weights()
             y_pred = model.test(X_test)
             st.session_state['model'] = model
             st.success("✔️ Model trained successfully!")
             # Data visualization
-            visualize_data(feature1, feature2, class1, class2, learning_rate, epochs, mse_threshold, use_bias, algorithm, X_train, y_train, X_test, y_test, y_pred)
+            visualize_data(feature1, feature2, class1, class2, learning_rate, epochs, mse_threshold, use_bias, algorithm, X_train, y_train, X_test, y_test, y_pred, weights, bias)
 
     # Classification section
     st.markdown("<br>", unsafe_allow_html=True)
