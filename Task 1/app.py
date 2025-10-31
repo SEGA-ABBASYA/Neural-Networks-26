@@ -3,6 +3,8 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
+from itertools import combinations
+from sklearn.preprocessing import StandardScaler
 import plotly.express as px
 import plotly.graph_objects as go
 from preprocessing import preprocess_data, preprocess_sample
@@ -10,71 +12,69 @@ from perceptron import PerceptronModel
 from adaline import AdalineModel
 from visualization import visualize_data
 
-# Page configuration
 st.set_page_config(
-    page_title="Neural Networks - Perceptron & Adaline",
-    page_icon="🧠",
+    page_title="Penguin Classification",
+    page_icon="🐧",
     layout="wide"
 )
 
-# Custom CSS for better styling
 st.markdown("""
 <style>
     .main-header {
         font-size: 2.5rem;
-        color: #1f77b4;
+        color: #0EA5E9;
         text-align: center;
         margin-bottom: 2rem;
     }
     .section-header {
         font-size: 1.5rem;
-        color: #2c3e50;
+        color: #075985;
         margin-top: 2rem;
         margin-bottom: 1rem;
-        border-bottom: 2px solid #3498db;
+        border-bottom: 1px solid #0EA5E9;
         padding-bottom: 0.5rem;
     }
-    .metric-container {
-        background-color: #f8f9fa;
-        padding: 1rem;
-        border-radius: 0.5rem;
-        border-left: 4px solid #3498db;
+    /* Style the primary button */
+    button[kind="primary"] {
+        background-color: #0284C7 !important;
+        border-color: #0284C7 !important;
+        height: 38px !important;
+        width: 150px !important;
+    }
+    button[kind="primary"]:hover {
+        background-color: #0369A1 !important;
+        border-color: #0369A1 !important;
     }
 </style>
 """, unsafe_allow_html=True)
 
 def main():
-    # Main header
-    st.markdown('<h1 class="main-header">🧠 Neural Networks - Perceptron & Adaline</h1>', unsafe_allow_html=True)
+    st.markdown('<h1 class="main-header">🐧 Penguin Classification 🐧</h1>', unsafe_allow_html=True)
+    st.sidebar.markdown("## ❄️ Configuration")
 
-    # Sidebar for user input
-    st.sidebar.markdown("## ⚙️ Configuration")
-
-    # Feature selection
-    st.sidebar.markdown("### 📊 Feature Selection")
-    numeric_features = ['CulmenLength', 'CulmenDepth', 'FlipperLength', 'BodyMass', 'OriginLocation']
+    # Features
+    st.sidebar.markdown("### ⛄ Features")
+    features = ['CulmenLength', 'CulmenDepth', 'FlipperLength', 'BodyMass', 'OriginLocation']
 
     feature1 = st.sidebar.selectbox(
         "Select First Feature:",
-        numeric_features,
+        features,
         index=0
     )
 
     feature2 = st.sidebar.selectbox(
         "Select Second Feature:",
-        [f for f in numeric_features if f != feature1],
+        [f for f in features if f != feature1],
         index=0
     )
 
-    # Class selection
-    st.sidebar.markdown("### 🎯 Class Selection")
-    unique_classes =  ['Gentoo', 'Chinstrap', 'Adelie']
+    # Classes
+    st.sidebar.markdown("### ⛄ Class Selection")
+    classes = ['Gentoo', 'Chinstrap', 'Adelie']
     class_options = {
-        f"{unique_classes[0]} & {unique_classes[1]}": (unique_classes[0], unique_classes[1]),
-        f"{unique_classes[0]} & {unique_classes[2]}": (unique_classes[0], unique_classes[2]),
-        f"{unique_classes[1]} & {unique_classes[2]}": (unique_classes[1], unique_classes[2])
+        f"{c1} & {c2}": (c1, c2)
+        for c1, c2 in combinations(classes, 2)
     }
-
     selected_classes = st.sidebar.selectbox(
         "Select Two Classes:",
         list(class_options.keys())
@@ -82,8 +82,8 @@ def main():
 
     class1, class2 = class_options[selected_classes]
 
-    # Model parameters
-    st.sidebar.markdown("### 🔧 Model Parameters")
+    # Hyperparameters
+    st.sidebar.markdown("### ⛄ Model Hyperparameters")
 
     learning_rate = st.sidebar.number_input(
         "Learning Rate (η):",
@@ -113,21 +113,20 @@ def main():
 
     use_bias = st.sidebar.checkbox("Add Bias", value=True)
 
-    # Algorithm selection
-    st.sidebar.markdown("### 🤖 Algorithm Selection")
+    # Algorithms
+    st.sidebar.markdown("### ⛄ Algorithm Selection")
     algorithm = st.sidebar.radio(
         "Choose Algorithm:",
         ["Perceptron", "Adaline"]
     )
 
-    # Preprocess data
+    # Preprocessing
     X_train, y_train, X_test, y_test, min_val, max_val = preprocess_data(feature1, feature2, class1, class2)
 
-    # Main content area
-    st.markdown('<h2 class="section-header">🎯 Model Training</h2>', unsafe_allow_html=True)
-
-    # Train button
-    if st.button("🚀 Train Model", type="primary"):
+    st.markdown('<h2 class="section-header">🌨️ Model Training</h2>', unsafe_allow_html=True)
+    # Model Training Section
+    st.markdown("<br>", unsafe_allow_html=True)
+    if st.button("☃️ Train Model", type="primary"):
         with st.spinner("Training model..."):
             if algorithm == "Perceptron":
                 model = PerceptronModel(
@@ -148,12 +147,14 @@ def main():
             weights, bias = model.get_weights()
             y_pred = model.test(X_test)
             st.session_state['model'] = model
-            st.success("✅ Model trained successfully!")
+            st.success("✔️ Model trained successfully!")
             # Data visualization
             visualize_data(feature1, feature2, class1, class2, learning_rate, epochs, mse_threshold, use_bias, algorithm, X_train, y_train, X_test, y_test, y_pred, weights, bias)
 
     # Classification section
-    st.markdown('<h2 class="section-header">🔍 Classification</h2>', unsafe_allow_html=True)
+    st.markdown("<br>", unsafe_allow_html=True)
+    st.markdown('<h2 class="section-header">🌨️ Classification</h2>', unsafe_allow_html=True)
+    st.markdown("<br>", unsafe_allow_html=True)
     # Input fields for sample classification
     sample_feature1 = st.number_input(
         f"{feature1}:"
@@ -161,9 +162,9 @@ def main():
     sample_feature2 = st.number_input(
         f"{feature2}:"
     )
-    if st.button("🔮 Classify Sample"):
+    if st.button("❄️ Classify Sample"):
         if 'model' in st.session_state:
-            # Prepare sample for prediction
+            # Sample preprocessing
             sample = preprocess_sample(sample_feature1, sample_feature2)
             prediction_value = st.session_state['model'].predict(sample)
 
@@ -172,8 +173,7 @@ def main():
                 predicted_class = class1
             else:  # prediction_value == -1
                 predicted_class = class2
-
-            st.success(f"🎯 Predicted Class: **{predicted_class}**")
+            st.success(f"🐧 Predicted Class: **{predicted_class}** ")
         else:
             st.error("❌ Please train a model first!")
 
