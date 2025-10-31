@@ -53,8 +53,8 @@ def main():
     st.sidebar.markdown("## ❄️ Configuration")
 
     # Features
-    st.sidebar.markdown("### ⛄ Feature Selection")
-    numeric_features = ['CulmenLength', 'CulmenDepth', 'FlipperLength', 'BodyMass', 'OriginLocation']
+    st.sidebar.markdown("### ⛄ Features")
+    features = ['CulmenLength', 'CulmenDepth', 'FlipperLength', 'BodyMass', 'OriginLocation']
 
     feature1 = st.sidebar.selectbox(
         "Select First Feature:",
@@ -120,7 +120,7 @@ def main():
         ["Perceptron", "Adaline"]
     )
 
-    # Preprocess data
+    # Preprocessing
     X_train, y_train, X_test, y_test, min_val, max_val = preprocess_data(feature1, feature2, class1, class2)
 
     st.markdown('<h2 class="section-header">🌨️ Model Training</h2>', unsafe_allow_html=True)
