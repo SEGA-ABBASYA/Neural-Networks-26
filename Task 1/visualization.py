@@ -35,9 +35,6 @@ def visualize_data(feature1, feature2, class1, class2, learning_rate, n_epochs, 
     X_train = np.array(X_train)
     X_test = np.array(X_test)
 
-    print(y_test)
-    print(y_pred)
-
     # Convert labels to binary (0 and 1)
     y_train = np.where(y_train <= 0, 0, 1)
     y_test = np.where(y_test <= 0, 0, 1)
@@ -62,17 +59,20 @@ def visualize_data(feature1, feature2, class1, class2, learning_rate, n_epochs, 
 
     # Scatter Plot
     ax1 = fig.add_subplot(gs[0])
-    ax1.scatter(X_train[y_train==0][:,0], X_train[y_train==0][:,1], color='blue', label=f'{class1} (-1)')
-    ax1.scatter(X_train[y_train==1][:,0], X_train[y_train==1][:,1], color='orange', label=f'{class2} (1)')
+    ax1.scatter(X_test[y_test == 0][:, 0], X_test[y_test == 0][:, 1],
+                color='blue', label=f'{class1} (-1)')
+    ax1.scatter(X_test[y_test == 1][:, 0], X_test[y_test == 1][:, 1],
+                color='orange', label=f'{class2} (+1)')
 
-    x_values = np.linspace(X_train[:,0].min(), X_train[:,0].max(), 100)
+    # Decision boundary
+    x_values = np.linspace(X_test[:, 0].min(), X_test[:, 0].max(), 100)
     if w2 != 0:
         y_values = -(b + w1 * x_values) / w2
-        ax1.plot(x_values, y_values, color='green', label='Decision boundary')
+        ax1.plot(x_values, y_values, color='green', label='Decision Boundary')
     else:
-        ax1.axvline(-b/w1 if w1 != 0 else 0, color='green', linestyle='--', label='Decision boundary')
+        ax1.axvline(-b / w1 if w1 != 0 else 0, color='green', linestyle='--', label='Decision Boundary')
 
-    ax1.set_title(f"After Training — Decision Boundary\n(+1 → {class2},  -1 → {class1})", fontsize=12)
+    ax1.set_title(f"Test Data — Decision Boundary\n(+1 → {class2},  -1 → {class1})", fontsize=12)
     ax1.set_xlabel(feature1)
     ax1.set_ylabel(feature2)
     ax1.legend()
