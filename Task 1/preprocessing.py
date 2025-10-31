@@ -45,10 +45,14 @@ def preprocess_data(feature1, feature2, class1, class2):
     scaler = StandardScaler()
     X_train = pd.DataFrame(scaler.fit_transform(X_train), columns=X_train.columns)
     X_test = pd.DataFrame(scaler.transform(X_test), columns=X_test.columns)
+    min_value = scaler.data_min_
+    max_value = scaler.data_max_
 
     st.session_state['feature_columns'] = X_train.columns.tolist()
     st.session_state['scaler'] = scaler
     st.session_state['mean_values'] = X_train.mean(numeric_only=True)
+    st.session_state['min_values'] = min_value
+    st.session_state['max_values'] = max_value
 
     return X_train.to_numpy(), y_train, X_test.to_numpy(), y_test
 

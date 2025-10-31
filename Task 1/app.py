@@ -3,7 +3,6 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
-from sklearn.preprocessing import StandardScaler
 import plotly.express as px
 import plotly.graph_objects as go
 from preprocessing import preprocess_data, preprocess_sample
@@ -122,7 +121,7 @@ def main():
     )
 
     # Preprocess data
-    X_train, y_train, X_test, y_test = preprocess_data(feature1, feature2, class1, class2)
+    X_train, y_train, X_test, y_test, min_val, max_val = preprocess_data(feature1, feature2, class1, class2)
 
     # Main content area
     st.markdown('<h2 class="section-header">🎯 Model Training</h2>', unsafe_allow_html=True)
@@ -135,6 +134,8 @@ def main():
                     learning_rate=learning_rate,
                     n_epochs=epochs,
                     add_bias=use_bias,
+                    min_value=min_val,
+                    max_value=max_val
                 )
             else:
                 model = AdalineModel(
