@@ -27,7 +27,7 @@ class AdalineModel:
         self.mse_threshold = mse_threshold
         self.add_bias = add_bias
         self.weights = None
-        self.bias = np.float64(0.0)
+        self.bias = np.float64(0)
         self.losses = []
 
     def train(self, X_train, y_train):
@@ -43,7 +43,7 @@ class AdalineModel:
         """
         rand = np.random.RandomState(42)
         self.weights = rand.normal(loc=0.0, scale=0.01, size=X_train.shape[1])
-        self.bias = np.float64(0)
+        self.bias = np.float64(0.0)
         
         self.losses = []
         epoch = 0
@@ -56,9 +56,10 @@ class AdalineModel:
             
             # Update weights and bias using gradient descent
             self.weights += self.learning_rate * (float(1<<1) / X_train.shape[0]) * X_train.T.dot(errors)
-            
+            # self.weights += self.learning_rate*float(1<<1)*X_train.T.dot(errors)/X_train.shape[0]
             if self.add_bias:
-                self.bias += self.learning_rate * (float(1<<1) / X_train.shape[0]) * errors.sum()
+                self.bias += self.learning_rate *float(1<<1) * errors.mean()
+                # self.bias += self.learning_rate * (float(1<<1) / X_train.shape[0]) * errors.sum()
             
             # Calculate mean squared error for this epoch
             loss = np.mean(errors**2)
