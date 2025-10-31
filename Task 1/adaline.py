@@ -55,8 +55,8 @@ class AdalineModel:
             errors = y_train - output
             
             # Update weights and bias using gradient descent
-            self.weights += self.learning_rate * (float(1<<1) / X_train.shape[0]) * X_train.T.dot(errors)
-            # self.weights += self.learning_rate*float(1<<1)*X_train.T.dot(errors)/X_train.shape[0]
+            # self.weights += self.learning_rate * (float(1<<1) / X_train.shape[0]) * X_train.T.dot(errors)
+            self.weights += self.learning_rate*float(1<<1)*X_train.T.dot(errors)/X_train.shape[0]
             if self.add_bias:
                 self.bias += self.learning_rate *float(1<<1) * errors.mean()
                 # self.bias += self.learning_rate * (float(1<<1) / X_train.shape[0]) * errors.sum()

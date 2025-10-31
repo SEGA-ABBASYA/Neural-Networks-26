@@ -134,8 +134,8 @@ def main():
                     learning_rate=learning_rate,
                     n_epochs=epochs,
                     add_bias=use_bias,
-                    min_value=min_val,
-                    max_value=max_val
+                    min=min_val,
+                    max=max_val
                 )
             else:
                 model = AdalineModel(
