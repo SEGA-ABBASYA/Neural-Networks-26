@@ -27,7 +27,7 @@ class AdalineModel:
         self.mse_threshold = mse_threshold
         self.add_bias = add_bias
         self.weights = None
-        self.bias = np.float64(0)
+        self.bias = np.float64(0.0)
         self.losses = []
 
     def train(self, X_train, y_train):
