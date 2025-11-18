@@ -24,7 +24,7 @@ def tanh_one_hot(y, num_classes=3):
 
 def class_encode_species(y_train, y_test, activationFN):
     if (activationFN == "sigmoid"): 
-        encoder = OneHotEncoder(sparse=False)
+        encoder = OneHotEncoder(sparse_output=False)
         y_train_encoded = encoder.fit_transform(y_train.reshape(-1, 1))
         y_test_encoded = encoder.transform(y_test.reshape(-1, 1))
     else:
@@ -43,8 +43,8 @@ def splitting_data(df):
     for cls in sorted(df['Species'].unique()):
         class_df = df[df['Species'] == cls]
 
-        class_df = class_df.head(50)     
-        train_df = class_df.iloc[:30]     
+        class_df = class_df.head(50)    
+        train_df = class_df.iloc[:30]    
         test_df = class_df.iloc[30:50]
 
         X_train_list.append(train_df.drop(columns=['Species']))
@@ -66,12 +66,14 @@ def preprocess_data(activationFN):
 
     X = df_clean.drop(columns=['Species'])
     y = df_clean['Species']
-   
+    
     X_train, X_test, y_train, y_test = splitting_data(df_clean)
 
-    X_train = X_train.fillna(X_train.mean(numeric_only=True))
-    X_test = X_test.fillna(X_train.mean(numeric_only=True))
-   
+    train_means = X_train.mean(numeric_only=True)
+    
+    X_train = X_train.fillna(train_means)
+    X_test = X_test.fillna(train_means)
+    
     y_train = label_encode_species(y_train)
     y_test = label_encode_species(y_test)
 
@@ -81,6 +83,8 @@ def preprocess_data(activationFN):
     X_train = one_hot_encode_location(X_train)
     X_test = one_hot_encode_location(X_test)
 
+    X_test = X_test.reindex(columns=X_train.columns, fill_value=0)
+    
     scaler = MinMaxScaler()
     X_train = pd.DataFrame(scaler.fit_transform(X_train), columns=X_train.columns)
     X_test = pd.DataFrame(scaler.transform(X_test), columns=X_test.columns)
@@ -89,7 +93,7 @@ def preprocess_data(activationFN):
     max_value = scaler.data_max_
     st.session_state['feature_columns'] = X_train.columns.tolist()
     st.session_state['scaler'] = scaler
-    st.session_state['mean_values'] = X_train.mean(numeric_only=True)
+    st.session_state['mean_values'] = train_means
     st.session_state['min_values'] = min_value
     st.session_state['max_values'] = max_value
     return (
@@ -97,8 +101,6 @@ def preprocess_data(activationFN):
         y_train,
         X_test.to_numpy(),
         y_test,
-        min_value,
-        max_value,
     )
 
 
@@ -108,14 +110,24 @@ def preprocess_sample(culmen_length, culmen_depth, flipper_length, body_mass, or
         'culmen_depth': culmen_depth,
         'flipper_length': flipper_length,
         'body_mass': body_mass,
-        'origin_location': origin_location
+        'OriginLocation': origin_location 
     }
 
     sample_df = pd.DataFrame([sample_dict])
-    sample_df = sample_df.fillna(st.session_state['mean_values'])
+    
+    if 'mean_values' in st.session_state:
+        sample_df = sample_df.fillna(st.session_state['mean_values'])
+        
     sample_df = one_hot_encode_location(sample_df)
-    sample_df = sample_df.reindex(columns=st.session_state['feature_columns'], fill_value=0)
-    scaler = st.session_state['scaler']
-    sample_df = pd.DataFrame(scaler.transform(sample_df), columns=sample_df.columns)
+    
+    if 'feature_columns' in st.session_state and 'scaler' in st.session_state:
+        # Align columns to training features (Crucial for prediction)
+        sample_df = sample_df.reindex(columns=st.session_state['feature_columns'], fill_value=0)
+        
+        scaler = st.session_state['scaler']
+        sample_df = pd.DataFrame(scaler.transform(sample_df), columns=sample_df.columns)
+    else:
+        st.warning("Scaler or feature columns not initialized. Run preprocess_data first.")
+        return pd.DataFrame()
 
     return sample_df

@@ -3,7 +3,7 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
-from preprocessing import preprocess_data, preprocess_sample_backprop
+from preprocessing import preprocess_data, preprocess_sample
 from backpropagation import BackpropagationModel
 
 st.set_page_config(
