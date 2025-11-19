@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from preprocessing import preprocess_data, preprocess_sample
 from backpropagation import BackpropagationModel
+from visualization import visualize_data
 
 st.set_page_config(
     page_title="Penguin Classification",
@@ -107,7 +108,10 @@ def main():
             )
             model.train(X_train, y_train)
             st.session_state['model'] = model
+            y_pred = model.test(X_test)
             st.success("✔️ Model trained successfully!")
+            # Data visualization
+            visualize_data(X_train, y_train, X_test, y_test, y_pred, model, class1 = "Adelie", class2 = "Chinstrap", class3 = "Gentoo")
 
     st.markdown("<br>", unsafe_allow_html=True)
     st.markdown('<h2 class="section-header">🌨️ Classification</h2>', unsafe_allow_html=True)
