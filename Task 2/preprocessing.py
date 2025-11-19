@@ -1,18 +1,38 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
+import os
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder, MinMaxScaler, OneHotEncoder
 
-df = pd.read_csv("penguins.csv")
+# Get the directory where this file is located
+current_dir = os.path.dirname(os.path.abspath(__file__))
+csv_path = os.path.join(current_dir, "penguins.csv")
+df = pd.read_csv(csv_path)
 
-def label_encode_species(series):
+# Standardize column names to lowercase
+df.columns = df.columns.str.lower()
+
+def label_encode_species(y_train, y_test):
+    # Use single encoder for both train and test to ensure consistent encoding
     le = LabelEncoder()
-    return le.fit_transform(series)
+    # Fit on combined data to ensure all classes are seen
+    all_species = pd.concat([y_train, y_test])
+    le.fit(all_species)
+    
+    y_train_encoded = le.transform(y_train)
+    y_test_encoded = le.transform(y_test)
+    
+    # Print mapping for debugging
+    print("Species encoding:")
+    for i, species in enumerate(le.classes_):
+        print(f"  {species} → {i}")
+    
+    return y_train_encoded, y_test_encoded
 
 def one_hot_encode_location(df):
-    if( 'OriginLocation' in df.columns):
-        df = pd.get_dummies(df, columns=['OriginLocation'], drop_first=True)
+    if 'originlocation' in df.columns:
+        df = pd.get_dummies(df, columns=['originlocation'], drop_first=True)
     return df
 
 
@@ -40,18 +60,18 @@ def splitting_data(df):
     y_train_list = []
     y_test_list = []
 
-    for cls in sorted(df['Species'].unique()):
-        class_df = df[df['Species'] == cls]
+    for cls in sorted(df['species'].unique()):
+        class_df = df[df['species'] == cls]
 
         class_df = class_df.head(50)    
         train_df = class_df.iloc[:30]    
         test_df = class_df.iloc[30:50]
 
-        X_train_list.append(train_df.drop(columns=['Species']))
-        y_train_list.append(train_df['Species'])
+        X_train_list.append(train_df.drop(columns=['species']))
+        y_train_list.append(train_df['species'])
 
-        X_test_list.append(test_df.drop(columns=['Species']))
-        y_test_list.append(test_df['Species'])
+        X_test_list.append(test_df.drop(columns=['species']))
+        y_test_list.append(test_df['species'])
 
     X_train = pd.concat(X_train_list).reset_index(drop=True)
     y_train = pd.concat(y_train_list).reset_index(drop=True)
@@ -64,8 +84,8 @@ def preprocess_data(activationFN):
 
     df_clean = df.copy()
 
-    X = df_clean.drop(columns=['Species'])
-    y = df_clean['Species']
+    X = df_clean.drop(columns=['species'])
+    y = df_clean['species']
     
     X_train, X_test, y_train, y_test = splitting_data(df_clean)
 
@@ -74,8 +94,7 @@ def preprocess_data(activationFN):
     X_train = X_train.fillna(train_means)
     X_test = X_test.fillna(train_means)
     
-    y_train = label_encode_species(y_train)
-    y_test = label_encode_species(y_test)
+    y_train, y_test = label_encode_species(y_train, y_test)
 
     activationFN = str(activationFN).lower()
     y_train, y_test = class_encode_species(y_train, y_test, activationFN)
@@ -106,11 +125,11 @@ def preprocess_data(activationFN):
 
 def preprocess_sample(culmen_length, culmen_depth, flipper_length, body_mass, origin_location):
     sample_dict = {
-        'culmen_length': culmen_length,
-        'culmen_depth': culmen_depth,
-        'flipper_length': flipper_length,
-        'body_mass': body_mass,
-        'OriginLocation': origin_location 
+        'culmenlength': culmen_length,
+        'culmendepth': culmen_depth,
+        'flipperlength': flipper_length,
+        'bodymass': body_mass,
+        'originlocation': origin_location 
     }
 
     sample_df = pd.DataFrame([sample_dict])

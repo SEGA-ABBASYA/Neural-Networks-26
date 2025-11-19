@@ -7,10 +7,15 @@ from matplotlib.gridspec import GridSpec
 def visualize_data(X_train, y_train, X_test, y_test, y_pred, model, class1 = "Adelie", class2 = "Chinstrap", class3 = "Gentoo"):
     X_test = np.array(X_test)
     y_test = np.array(y_test)
-    y_pred = np.array(y_pred).flatten()
+    y_pred = np.array(y_pred)
 
-    if y_test.ndim > 1: # Convert target to class indices
+    # Convert one-hot encoded targets to class indices
+    if y_test.ndim > 1:
         y_test = np.argmax(y_test, axis = 1)
+    
+    # Convert prediction probabilities to class indices
+    if y_pred.ndim > 1:
+        y_pred = np.argmax(y_pred, axis = 1)
 
     accuracy_value = np.mean(y_test == y_pred) * 100
     cm = np.zeros((3, 3), dtype = int)
@@ -111,8 +116,12 @@ def visualize_data(X_train, y_train, X_test, y_test, y_pred, model, class1 = "Ad
     plt.tight_layout()
 
     # Saving the plots
+    # Create Visualizations folder if it doesn't exist
+    vis_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "Visualizations")
+    os.makedirs(vis_dir, exist_ok=True)
+    
     filename = f"penguin_backprop_result_{random.randint(1000, 9999)}.png"
-    filepath = os.path.join("Visualizations", filename)
+    filepath = os.path.join(vis_dir, filename)
     plt.savefig(filepath, dpi = 300, bbox_inches = 'tight', facecolor = 'white')
     plt.close()
 

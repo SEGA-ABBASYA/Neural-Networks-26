@@ -25,21 +25,25 @@ class BackpropagationModel:
         self.initialize_weights()
     
     def initialize_weights(self):
+        np.random.seed(None)  
         layer_sizes = [self.num_features] + self.neurons_per_layer + [self.num_classes]
         sz = len(layer_sizes)-1
         for i in range(sz):
-            weight = np.random.uniform(-0.5, 0.5, (layer_sizes[i], layer_sizes[i+1]))
+            limit = np.sqrt(6.0 / (layer_sizes[i] + layer_sizes[i+1]))
+            weight = np.random.uniform(-limit, limit, (layer_sizes[i], layer_sizes[i+1]))
             self.weights.append(weight)
             if self.use_bias:
-                bias = np.random.uniform(-0.5, 0.5, (1, layer_sizes[i+1]))
+                bias = np.zeros((1, layer_sizes[i+1]))
                 self.biases.append(bias)
             else:
                 self.biases.append(np.zeros((1, layer_sizes[i+1])))
     
     def activation(self, x):
         if self.activation_function == "sigmoid":
+            x = np.clip(x, -500, 500)
             return 1 / (1 + np.exp(-x))
-        elif self.activation_function == "tanh":
+        elif self.activation_function == "tanh" or self.activation_function == "hyperbolic tangent":
+            x = np.clip(x, -50, 50)
             return np.tanh(x)
         else:
             return x
@@ -47,7 +51,7 @@ class BackpropagationModel:
     def derivative(self, x):
         if self.activation_function == "sigmoid":
             return x*(1-x)
-        elif self.activation_function == "tanh":
+        elif self.activation_function == "tanh" or self.activation_function == "hyperbolic tangent":
             return 1-x**(1<<1)
         else:
             return np.ones_like(x)
@@ -72,26 +76,40 @@ class BackpropagationModel:
         # (target-output)*derivative
         deltas[-1] = (y_true-activations[-1]) * self.derivative(activations[-1])
         sz = len(self.weights)
-        for i in range(sz-(1<<1), -1, -1):
+        for i in range(sz-2, -1, -1):
             error = np.dot(deltas[i+1], self.weights[i+1].T)
             deltas[i] = error * self.derivative(activations[i+1])
             
         # update weights
         # new = old + (lr * delta * input)
         for i in range(sz):
-            weight_gradient = np.dot(activations[i].T, deltas[i])            
+            weight_gradient = np.dot(activations[i].T, deltas[i])
+            
+            # clip to prevent explosion
+            weight_gradient = np.clip(weight_gradient, -10, 10)
+            
             # update
             self.weights[i] += self.learning_rate * weight_gradient
             if self.use_bias:
-                self.biases[i] += self.learning_rate * deltas[i]
+                bias_gradient = np.mean(deltas[i], axis=0, keepdims=True)
+                bias_gradient = np.clip(bias_gradient, -10, 10)
+                self.biases[i] += self.learning_rate * bias_gradient
 
     def train(self, X_train, y_train):
+        print(f"\nStarting training with {len(X_train)} samples for {self.n_epochs} epochs...")
+        print(f"Class distribution in training: {np.sum(y_train, axis=0)}")
+        
         for epoch in range(self.n_epochs):
+            indexes = np.arange(len(X_train))
+            np.random.shuffle(indexes)
+            X_shuffled = X_train[indexes]
+            y_shuffled = y_train[indexes]
+            
             epoch_loss = 0
-            sz = len(X_train)
+            sz = len(X_shuffled)
             for i in range(sz):
-                x_sample = X_train[i].reshape(1,-1)
-                y_sample = y_train[i].reshape(1,-1)
+                x_sample = X_shuffled[i].reshape(1,-1)
+                y_sample = y_shuffled[i].reshape(1,-1)
                 #forward
                 activations = self.forward_propagation(x_sample)
                 # loss

@@ -91,13 +91,15 @@ def main():
 
     X_train, y_train, X_test, y_test = preprocess_data(activation_function)
 
+    # Get actual number of features from the data
+    num_features = X_train.shape[1]
 
     st.markdown('<h2 class="section-header">🌨️ Model Training</h2>', unsafe_allow_html=True)
     st.markdown("<br>", unsafe_allow_html=True)
     if st.button("☃️ Train Model", type="primary"):
         with st.spinner("Training model..."):
             model = BackpropagationModel(
-                num_features=5,
+                num_features=num_features,
                 num_classes=3,
                 num_hidden_layers=num_hidden_layers,
                 neurons_per_layer=neurons_per_layer,
