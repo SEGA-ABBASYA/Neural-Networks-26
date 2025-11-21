@@ -34,7 +34,7 @@ st.markdown("""
         background-color: #0284C7 !important;
         border-color: #0284C7 !important;
         height: 38px !important;
-        width: 150px !important;
+        width: 175px !important;
     }
     button[kind="primary"]:hover {
         background-color: #0369A1 !important;
@@ -156,7 +156,7 @@ def main():
             index=0
         )
 
-    if st.button("❄️ Classify Sample"):
+    if st.button("❄️ Classify Sample", type="primary"):
         if 'model' in st.session_state:
             sample = preprocess_sample(
                 culmen_length,
