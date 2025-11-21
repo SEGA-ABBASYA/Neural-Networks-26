@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from preprocessing import preprocess_data, preprocess_sample
 from backpropagation import BackpropagationModel
-from visualization import plot_pca_test_data, visualize_data
+from visualization import visualize_data
 import itertools 
 st.set_page_config(
     page_title="Penguin Classification",
@@ -120,7 +120,6 @@ def main():
             class_names = ["Adelie", "Chinstrap", "Gentoo"]
             # Convert probabilities to indices for PCA coloring
             y_pred_indices = np.argmax(y_pred, axis=1)
-            plot_pca_test_data(X_test, y_test, y_pred_indices, class_names)
             visualize_data(X_train, y_train, X_test, y_test, y_pred, model, class1 = "Adelie", class2 = "Chinstrap", class3 = "Gentoo")
 
     st.markdown("<br>", unsafe_allow_html=True)
