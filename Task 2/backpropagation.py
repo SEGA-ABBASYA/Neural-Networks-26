@@ -74,7 +74,7 @@ class BackpropagationModel:
         deltas = [None]*len(self.weights)
         
         # (target-output)*derivative
-        deltas[-1] = (y_true-activations[-1]) * self.derivative(activations[-1])
+        deltas[-1] = (activations[-1]-y_true) * self.derivative(activations[-1])
         sz = len(self.weights)
         for i in range(sz-2, -1, -1):
             error = np.dot(deltas[i+1], self.weights[i+1].T)
@@ -89,10 +89,11 @@ class BackpropagationModel:
             # weight_gradient = np.clip(weight_gradient, -10, 10)
             
             # update
-            self.weights[i] += self.learning_rate * weight_gradient
+            self.weights[i] -= self.learning_rate * weight_gradient
             if self.use_bias:
-                bias_gradient = np.mean(deltas[i], axis=0, keepdims=True)
-                self.biases[i] += self.learning_rate * bias_gradient
+                # bias_gradient = np.mean(deltas[i], axis=0, keepdims=True)
+                bias_gradient = np.sum(deltas[i], axis=0, keepdims=True)
+                self.biases[i] -= self.learning_rate * bias_gradient
 
     def train(self, X_train, y_train):
         print(f"class distribution: {np.sum(y_train, axis=0)}")
