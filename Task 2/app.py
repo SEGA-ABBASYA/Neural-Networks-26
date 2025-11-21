@@ -5,8 +5,8 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from preprocessing import preprocess_data, preprocess_sample
 from backpropagation import BackpropagationModel
-from visualization import visualize_data
-
+from visualization import plot_pca_test_data, visualize_data
+import itertools 
 st.set_page_config(
     page_title="Penguin Classification",
     page_icon="🐧",
@@ -46,7 +46,6 @@ st.markdown("""
 def main():
     st.markdown('<h1 class="main-header">🐧 Penguin Classification 🐧</h1>', unsafe_allow_html=True)
     st.sidebar.markdown("## ❄️ Configuration")
-
     num_hidden_layers = st.sidebar.number_input(
         "Number of hidden layers (H):",
         min_value=1,
@@ -91,7 +90,6 @@ def main():
 
     X_train, y_train, X_test, y_test = preprocess_data(activation_function)
 
-    # Get actual number of features from the data
     num_features = X_train.shape[1]
 
     st.markdown('<h2 class="section-header">🌨️ Model Training</h2>', unsafe_allow_html=True)
@@ -113,6 +111,16 @@ def main():
             y_pred = model.test(X_test)
             st.success("✔️ Model trained successfully!")
             # Data visualization
+            report_path = visualize_data(X_train, y_train, X_test, y_test, y_pred, model, 
+                           class1="Adelie", class2="Chinstrap", class3="Gentoo")
+            
+            st.image(report_path, caption="Training Report", use_column_width=True)
+
+            # --- 2. PCA VISUALIZATION (Streamlit interactive) ---
+            class_names = ["Adelie", "Chinstrap", "Gentoo"]
+            # Convert probabilities to indices for PCA coloring
+            y_pred_indices = np.argmax(y_pred, axis=1)
+            plot_pca_test_data(X_test, y_test, y_pred_indices, class_names)
             visualize_data(X_train, y_train, X_test, y_test, y_pred, model, class1 = "Adelie", class2 = "Chinstrap", class3 = "Gentoo")
 
     st.markdown("<br>", unsafe_allow_html=True)

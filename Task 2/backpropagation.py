@@ -40,10 +40,10 @@ class BackpropagationModel:
     
     def activation(self, x):
         if self.activation_function == "sigmoid":
-            x = np.clip(x, -500, 500)
+            # x = np.clip(x, -500, 500)
             return 1 / (1 + np.exp(-x))
         elif self.activation_function == "tanh" or self.activation_function == "hyperbolic tangent":
-            x = np.clip(x, -50, 50)
+            # x = np.clip(x, -50, 50)
             return np.tanh(x)
         else:
             return x
@@ -86,37 +86,46 @@ class BackpropagationModel:
             weight_gradient = np.dot(activations[i].T, deltas[i])
             
             # clip to prevent explosion
-            weight_gradient = np.clip(weight_gradient, -10, 10)
+            # weight_gradient = np.clip(weight_gradient, -10, 10)
             
             # update
             self.weights[i] += self.learning_rate * weight_gradient
             if self.use_bias:
                 bias_gradient = np.mean(deltas[i], axis=0, keepdims=True)
-                bias_gradient = np.clip(bias_gradient, -10, 10)
                 self.biases[i] += self.learning_rate * bias_gradient
 
     def train(self, X_train, y_train):
-        print(f"\nStarting training with {len(X_train)} samples for {self.n_epochs} epochs...")
-        print(f"Class distribution in training: {np.sum(y_train, axis=0)}")
+        print(f"class distribution: {np.sum(y_train, axis=0)}")
         
         for epoch in range(self.n_epochs):
-            indexes = np.arange(len(X_train))
-            np.random.shuffle(indexes)
-            X_shuffled = X_train[indexes]
-            y_shuffled = y_train[indexes]
+            # indexes = np.arange(len(X_train))
+            # np.random.shuffle(indexes)
+            # X_shuffled = X_train[indexes]
+            # y_shuffled = y_train[indexes]
             
             epoch_loss = 0
-            sz = len(X_shuffled)
+            sz = len(X_train)
+            
             for i in range(sz):
-                x_sample = X_shuffled[i].reshape(1,-1)
-                y_sample = y_shuffled[i].reshape(1,-1)
-                #forward
+                x_sample = X_train[i].reshape(1, -1)
+                y_sample = y_train[i].reshape(1, -1)
+                
+                # forward pass
                 activations = self.forward_propagation(x_sample)
+                
                 # loss
                 epoch_loss += np.sum((y_sample - activations[-1]) ** (1<<1)) / (1<<1)
-                # backward and update
+                
+                # backward pass and update weights
                 self.backward_propagation(activations, y_sample)
-            self.errors_history.append(epoch_loss/len(X_train))
+            
+            self.errors_history.append(epoch_loss / len(X_train))
+            
+            if epoch % 200 == 0 or epoch == self.n_epochs - 1:
+                # calc training
+                all_activations = self.forward_propagation(X_train)
+                acc = np.mean(np.argmax(y_train, axis=1) == np.argmax(all_activations[-1], axis=1)) * 100
+                print(f"Epoch {epoch:4d} | Loss: {self.errors_history[-1]:.6f} | Acc: {acc:.2f}%")
 
     def test(self, X_test):
         if X_test.ndim == 1:
@@ -129,3 +138,4 @@ class BackpropagationModel:
             X = X.reshape(1,-1)
         activations = self.forward_propagation(X)
         return np.argmax(activations[-1], axis=1)
+    

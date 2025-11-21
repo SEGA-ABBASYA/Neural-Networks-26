@@ -4,7 +4,14 @@ import numpy as np
 import os
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder, MinMaxScaler, OneHotEncoder
-
+import streamlit as st
+import pandas as pd
+import numpy as np
+import os
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.preprocessing import LabelEncoder, MinMaxScaler, OneHotEncoder
+import itertools 
 # Get the directory where this file is located
 current_dir = os.path.dirname(os.path.abspath(__file__))
 csv_path = os.path.join(current_dir, "penguins.csv")
@@ -12,7 +19,7 @@ df = pd.read_csv(csv_path)
 
 # Standardize column names to lowercase
 df.columns = df.columns.str.lower()
-
+    
 def label_encode_species(y_train, y_test):
     # Use single encoder for both train and test to ensure consistent encoding
     le = LabelEncoder()
@@ -53,7 +60,6 @@ def class_encode_species(y_train, y_test, activationFN):
 
     return y_train_encoded, y_test_encoded
 
-
 def splitting_data(df):
     X_train_list = []
     X_test_list = []
@@ -62,7 +68,9 @@ def splitting_data(df):
 
     for cls in sorted(df['species'].unique()):
         class_df = df[df['species'] == cls]
-
+        
+        class_df = class_df.sample(frac=1, random_state=42).reset_index(drop=True)
+        
         class_df = class_df.head(50)    
         train_df = class_df.iloc[:30]    
         test_df = class_df.iloc[30:50]
