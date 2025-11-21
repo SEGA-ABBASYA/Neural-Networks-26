@@ -114,18 +114,11 @@ def main():
             report_path = visualize_data(X_train, y_train, X_test, y_test, y_pred, model, 
                            class1="Adelie", class2="Chinstrap", class3="Gentoo")
             
-            st.image(report_path, caption="Training Report", use_column_width=True)
-
-            # --- 2. PCA VISUALIZATION (Streamlit interactive) ---
-            class_names = ["Adelie", "Chinstrap", "Gentoo"]
-            # Convert probabilities to indices for PCA coloring
-            y_pred_indices = np.argmax(y_pred, axis=1)
-            visualize_data(X_train, y_train, X_test, y_test, y_pred, model, class1 = "Adelie", class2 = "Chinstrap", class3 = "Gentoo")
+            st.image(report_path, use_container_width=True)
 
     st.markdown("<br>", unsafe_allow_html=True)
     st.markdown('<h2 class="section-header">🌨️ Classification</h2>', unsafe_allow_html=True)
     st.markdown("<br>", unsafe_allow_html=True)
-
 
     col1, col2 = st.columns(2)
 
@@ -163,7 +156,7 @@ def main():
             index=0
         )
 
-    if st.button("❄️ Classify Sample", type="primary"):
+    if st.button("❄️ Classify Sample"):
         if 'model' in st.session_state:
             sample = preprocess_sample(
                 culmen_length,
